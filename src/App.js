@@ -1,4 +1,4 @@
-import { Link, Navigate, Outlet, useParams, useRoutes } from "react-router-dom";
+import { Link, Switch, useParams, Route } from "react-router-dom";
 
 function HomePage () {
   return (
@@ -10,10 +10,17 @@ function HomePage () {
 }
 
 function UsersLayout() {
+  const {userId}=useParams()
   return  (
   <div> 
     <Link to="/">На главную</Link>
-    <Outlet/>
+    {userId
+      ? <Switch>
+          <Route path={`/users/:userId/edit`} component={EditUserPage}/>
+          <Route path={`/users/:userId`} component={UserPage}/>
+      </Switch>
+      : <UsersListPage/>
+    }
   </div>
   )
 }
@@ -30,48 +37,53 @@ function UsersListPage () {
 }
 
 function UserPage() {
+  const userId = useParams()
   return (
   <div>
     <h1>Страница чела</h1>
     <ul>
       <li><Link to="/users">список челов</Link></li>
-      <li><Link to={"/users/" + useParams().userId + "/edit"}>отредачим челика</Link></li>
-      {"Челикс нумба " + useParams().userId}
+      <li><Link to={"/users/" + userId.userId + "/edit"}>отредачим челика</Link></li>
+      {"Челикс нумба " + userId.userId}
     </ul>
   </div>
 )
 }
 
 function EditUserPage() {
+  const {userId} = useParams()
   return (
     <div>
       <h1>Редактировать чела</h1>
-      <li><Link to={"/users/" + useParams().userId}>Страница чела</Link></li>
-      <li><Link to={"/users/" + (Number(useParams().userId)+1)}>другой челик</Link></li>
+      <li><Link to={"/users/" + userId}>Страница чела</Link></li>
+      <li><Link to={"/users/" + (Number(userId)+1)}>другой челик</Link></li>
       <li><Link to="/users">список челов</Link></li>
     </div>
   )
 }
 
 function App() {
-  const routes = useRoutes([
-    { path: "/", element: <HomePage/>},
-    { path: "users", element: <UsersLayout/>, children:[
-      { path: "", element:<UsersListPage/>},
-      { path: ":userId", children: [
-        {path: "", element: <Navigate to="profile"/>},
-        {path: "profile", element: <UserPage/>},
-        {path: "edit", element:<EditUserPage/>}
-      ]}
-      ] 
-    },
-    { path: "*", element: <Navigate to="/"/> }
-  ])
+  // const routes = useRoutes([
+  //   { path: "/", element: <HomePage/>},
+  //   { path: "users", element: <UsersLayout/>, children:[
+  //     { path: "", element:<UsersListPage/>},
+  //     { path: ":userId", children: [
+  //       {path: "", element: <Navigate to="profile"/>},
+  //       {path: "profile", element: <UserPage/>},
+  //       {path: "edit", element:<EditUserPage/>}
+  //     ]}
+  //     ] 
+  //   },
+  //   { path: "*", element: <Navigate to="/"/> }
+  // ])
   return (
     <>
       <h1>app</h1>
       <hr/>
-      {routes}
+      <Switch>
+        <Route path="/users/:userId?" component={UsersLayout}/>
+        <Route path="/" component={HomePage}/>
+      </Switch>
     </>
   );
 }
